@@ -8,12 +8,12 @@ These integrations capture agent execution flows (LLM calls, tool usage, steps, 
 
 | Package | Framework | Status | Description |
 |---------|-----------|--------|-------------|
-| `ati-sdk` | - | Stable | Shared config & semantic conventions |
-| `ati-integrations-langchain` | LangChain | Stable | Callback-based instrumentation |
-| `ati-integrations-crewai` | CrewAI | Stable | Hook-based instrumentation for Crew/Agent |
-| `ati-integrations-autogen` | AutoGen | Stable | Middleware for Chat Agents |
-| `ati-integrations-llamaindex` | LlamaIndex | Stable | Callback handler for RAG/Agents |
-| `ati-integrations-autogpt` | AutoGPT | Beta | Agent loop instrumentation |
+| [`ati-sdk`](sdk/) | - | Stable | Shared config & semantic conventions |
+| [`ati-integrations-langchain`](integrations/langchain/) | LangChain | Stable | Callback-based instrumentation |
+| [`ati-integrations-crewai`](integrations/crewai/) | CrewAI | Stable | Hook-based instrumentation for Crew/Agent |
+| [`ati-integrations-autogen`](integrations/autogen/) | AutoGen | Stable | Middleware for Chat Agents |
+| [`ati-integrations-llamaindex`](integrations/llamaindex/) | LlamaIndex | Stable | Callback handler for RAG/Agents |
+| [`ati-integrations-autogpt`](integrations/autogpt/) | AutoGPT | Stable | Agent loop instrumentation |
 
 ## Getting Started
 

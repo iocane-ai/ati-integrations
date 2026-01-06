@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "ati-sdk"
-version = "0.1.0"
+version = "0.1.1"
 description = "ATI SDK: shared config + semantic conventions helpers for agent-aware OpenTelemetry tracing"
 readme = "README.md"
 requires-python = ">=3.10"
