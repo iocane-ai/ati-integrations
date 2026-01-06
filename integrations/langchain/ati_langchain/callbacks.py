@@ -9,20 +9,39 @@ from ati_sdk import AtiConfig, AtiTracer
 from ati_sdk.semantics import AtiSpanType, ATI_ATTR
 
 try:
-    from langchain.callbacks.base import BaseCallbackHandler
-except Exception:  # pragma: no cover
-    BaseCallbackHandler = object  # type: ignore
+    from langchain_core.callbacks import BaseCallbackHandler
+except ImportError:
+    try:
+        from langchain.callbacks.base import BaseCallbackHandler
+    except ImportError:  # pragma: no cover
+        BaseCallbackHandler = object  # type: ignore
 
 
-@dataclass
+@dataclass(eq=False)
 class AtiLangChainCallbackHandler(BaseCallbackHandler):
     tracer: AtiTracer
     config: AtiConfig
     agent_id: str = "langchain_agent"
 
+    # Explicitly define BaseCallbackHandler attributes to ensure they exist
+    # even if inheritance fails or imports are wonky.
+    ignore_chain: bool = False
+    ignore_llm: bool = False
+    ignore_agent: bool = False
+    ignore_retriever: bool = False
+    ignore_chat_model: bool = False
+    raise_error: bool = False
+
     _llm_span: Optional[Span] = None
     _tool_span: Optional[Span] = None
     _chain_span: Optional[Span] = None
+
+    def __post_init__(self) -> None:
+        # Try to initialize base if possible, but we have defaults now.
+        try:
+            super().__init__()
+        except Exception:
+            pass
 
     def on_chain_start(self, serialized: Dict[str, Any], inputs: Dict[str, Any], **kwargs: Any) -> None:
         self._chain_span = self.tracer.start_span(

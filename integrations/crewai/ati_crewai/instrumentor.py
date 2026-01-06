@@ -52,7 +52,6 @@ class CrewAIInstrumentor:
 
             # Use crew ID or generating one if missing
             agent_id = str(getattr(crew_instance, "id", "crew_unknown"))
-            # Crew usually doesn't have a name attribute, maybe verify
             
             span = self.tracer.start_span(
                 "crewai.crew.kickoff",

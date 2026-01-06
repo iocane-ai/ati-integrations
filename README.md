@@ -24,9 +24,19 @@ These integrations capture agent execution flows (LLM calls, tool usage, steps, 
     ```
 
 2.  **Configure Exporter (Standard OTEL):**
+    
+    You need your Environment ID and API Key. Run `iocane connect` to generate them in `.env.iocane`.
+
     ```bash
+    # 1. Service Name (Your Agent Name)
     export OTEL_SERVICE_NAME=my-agent-service
-    export OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4318
+    
+    # 2. Endpoint
+    export OTEL_EXPORTER_OTLP_ENDPOINT=https://api.iocane.ai/v1/traces
+    
+    # 3. Auth & Environment Headers
+    # Replace with values from .env.iocane or Dashboard
+    export OTEL_EXPORTER_OTLP_HEADERS="x-iocane-key=<YOUR_API_KEY>,x-ati-env=<YOUR_ENV_ID>"
     ```
 
 3.  **Instrument Code:**

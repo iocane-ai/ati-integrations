@@ -5,31 +5,44 @@ This package provides OpenTelemetry instrumentation for AutoGPT-style agents usi
 ## Installation
 
 ```bash
-pip install ati-integrations-autogpt
+pip install ati-integrations-autogpt opentelemetry-sdk opentelemetry-exporter-otlp
+```
+
+## Configuration
+
+Set the standard OpenTelemetry environment variables:
+
+```bash
+export OTEL_EXPORTER_OTLP_ENDPOINT="https://api.iocane.ai"
+export OTEL_EXPORTER_OTLP_HEADERS="x-iocane-key=YOUR_KEY,x-ati-env=YOUR_ENV_ID"
+export OTEL_SERVICE_NAME="my-autogpt-agent"
 ```
 
 ## Usage
 
 ```python
+import os
 from ati_autogpt import AutoGPTInstrumentor
-# import your Agent class, e.g. from autogpt.agent import Agent
+from opentelemetry import trace
+from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.sdk.trace.export import BatchSpanProcessor
+from opentelemetry.exporter.otlp.proto.http.trace_exporter import OTLPSpanExporter
 
-# 1. Enable Instrumentation
-# This wraps the `execute_step` (or `step`) method of the Agent class.
+# 1. Configure OpenTelemetry
+provider = TracerProvider()
+exporter = OTLPSpanExporter()
+provider.add_span_processor(BatchSpanProcessor(exporter))
+trace.set_tracer_provider(provider)
+
+# 2. Instrument AutoGPT
 instrumentor = AutoGPTInstrumentor()
+instrumentor.instrument() # auto-detects Agent class
 
-# Try to auto-detect 'autogpt.agent.Agent' or 'forge.agent.Agent'
-instrumentor.instrument() 
+# 3. Run your Agent
+# ...
 
-# OR explicitly pass your Agent class
-# instrumentor.instrument(agent_class=MyAgent)
-
-# 2. Run your Agent
-# agent = Agent(...)
-# agent.execute_step(...)
-
-# 3. (Optional) Uninstrument
-instrumentor.uninstrument()
+# 4. Flush traces
+provider.shutdown()
 ```
 
 ## Configuration

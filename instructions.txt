@@ -1,0 +1,57 @@
+
+Context:
+- This project is IOcane ATI (Agent Traffic Intelligence). ATI ingests OpenTelemetry traces (OTLP/HTTP) and analyzes agent coordination failures (fan-out collapse, blocking chains, retry storms).
+- The integrations must be **instrumentation only**: emit OTEL spans/events with ATI semantic attributes (`ati.*`). Do NOT invent a custom JSON tracing protocol. Do NOT POST custom spans to `/ingest`. Use the OpenTelemetry SDK and the user’s configured OTLP exporter.
+
+
+Authoritative requirements:
+1) Implement real OpenTelemetry spans using `opentelemetry-api`/`opentelemetry-sdk`.
+* developer story: ati-integrations/docs/developer-story.md
+
+2) Follow the semantic conventions in:
+   - `ati-integrations/docs/semantic-conventions.md`
+   - and the constants in `ati-integrations/sdk/ati_sdk/semantics.py`
+3) Public API contract per integration (see `docs/integration-contract.md`):
+   - `<Framework>Instrumentor().instrument(config: AtiConfig | None = None, **kwargs) -> <handler|None>`
+   - `.uninstrument() -> None`
+   - Must be idempotent (no double-wrapping), and safe for async contexts.
+4) Privacy:
+   - Payload capture OFF by default.
+   - If enabled (`AtiConfig.capture_*`), attach payloads ONLY as OTEL events named `ati.payload` (use `AtiTracer.add_payload_event`), never as span attributes.
+5) Deliverables per integration:
+   - Working instrumentation that produces spans with:
+     - `ati.trace.schema_version`
+     - `ati.framework` (correct value)
+     - `ati.span.type` (agent/step/tool/llm/io/orchestration)
+     - `ati.agent.id` (for agent-related spans)
+   - A runnable example under `integrations/<framework>/examples/` that emits at least:
+     - 1 agent/step span
+     - 1 tool or llm span
+   - Minimal tests that validate spans (use an in-memory OTEL exporter).
+   - Keep framework dependencies optional (lazy imports; extras in pyproject).
+
+Scope (complete these 4 integrations; LangChain is partial already):
+- `integrations/crewai`
+- `integrations/autogen`
+- `integrations/llamaindex`
+- `integrations/autogpt`
+
+Implementation guidance (what to hook):
+- CrewAI: task lifecycle + agent execution + delegation/fanout events.
+- AutoGen: message send/receive, tool calls, turn boundaries (augment existing OTEL if present).
+- LlamaIndex: callbacks around retrieval/synthesis/query pipeline.
+- AutoGPT: loop iterations + action/tool execution + memory read/write if accessible.
+
+Constraints:
+- Python 3.10+
+- No breaking changes to existing public interfaces.
+- Keep overhead low (no heavy processing in callbacks).
+- Prefer explicit hook wiring over “magic” global patching unless framework supports it cleanly.
+- Ensure `uninstrument()` restores patched functions/handlers.
+
+What to produce:
+- Commit-ready code changes implementing the above.
+- Update each integration README with “5-minute enablement” instructions.
+- Add `pytest` tests and ensure all tests pass locally.
+
+Start by implementing one integration end-to-end (complete the LangChain + example + test), then replicate the pattern for CrewAI, AutoGen, LlamaIndex, AutoGPT.

@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "ati-integrations-langchain"
-version = "0.1.0"
+version = "0.1.1"
 description = "ATI LangChain integration: emit agent-aware OpenTelemetry spans via LangChain callbacks"
 readme = "README.md"
 requires-python = ">=3.10"
